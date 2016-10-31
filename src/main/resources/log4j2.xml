@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" >
+  <Appenders>
+  
+    <Console name="stdout" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d [%t] (%F:%L) %-5p %c - %m%n"/>
+    </Console>
+    
+    <RollingFile name="fileout" filename="d:/logs/adsp-impl_app.log"
+    		filePattern="d:/logs/adsp-impl_app.%d{yyyy-MM-dd}.log">
+      <Policies>
+	        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+      </Policies>
+        <PatternLayout pattern="%d [%t] (%F:%L) %-5p %c - %m%n"/>
+    </RollingFile>
+    
+    <RollingFile name="exceptionAppender" filename="d:/logs/adsp-impl_exception.log"
+    		filePattern="d:/logs/adsp-impl_exception.%d{yyyy-MM-dd}.log">
+      <Policies>
+	        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+      </Policies>
+      <PatternLayout pattern="%d [%t] (%F:%L) %-5p %c - %m%n"/>
+    </RollingFile>
+    
+    <RollingFile name="methodAppender" filename="d:/logs/adsp-impl_monitor.log"
+    		filePattern="d:/logs/adsp-impl_monitor.%d{yyyy-MM-dd}.log">
+      <Policies>
+	        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+      </Policies>
+      <PatternLayout pattern="%d [%t] (%F:%L) %-5p %c - %m%n"/>
+    </RollingFile>
+  </Appenders>
+  <Loggers>
+    <Root level="INFO">
+      <AppenderRef ref="stdout"/>
+      <!-- <AppenderRef ref="fileout"/> -->
+    </Root>
+    <Logger name="com.honey" level="DEBUG"/>
+    <Logger name="org.springframework" level="INFO" additivity="false">
+      <AppenderRef ref="stdout"/>
+    </Logger>
+    <Logger name="exceptionMonitor" level="INFO" additivity="false">
+      <AppenderRef ref="exceptionAppender"/>
+    </Logger>
+    <Logger name="methodMonitor" level="INFO" additivity="false">
+      <AppenderRef ref="methodAppender"/>
+    </Logger>
+  </Loggers>
+</Configuration>
