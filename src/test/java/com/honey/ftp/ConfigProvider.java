@@ -5,7 +5,7 @@ import com.honey.entity.InterfaceConfig;
 
 public class ConfigProvider {
 
-	protected static InterfaceConfig getUploadConfig() {
+	public static InterfaceConfig getUploadConfig() {
 		InterfaceConfig config = new InterfaceConfig();
 		config.setFtpUrl("127.0.0.1");
 		config.setFtpPort("21");
@@ -18,7 +18,7 @@ public class ConfigProvider {
 		return config;
 	}
 	
-	protected static InterfaceConfig getDownloadConfig() {
+	public static InterfaceConfig getDownloadConfig() {
 		InterfaceConfig config = new InterfaceConfig();
 		config.setFtpUrl("127.0.0.1");
 		config.setFtpPort("21");

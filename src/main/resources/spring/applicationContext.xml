@@ -33,6 +33,10 @@
 		<property name="timeBetweenEvictionRunsMillis" value="30000" />
 		<property name="minEvictableIdleTimeMillis" value="1800000" />
 	</bean>
-	<bean id="ftpTemplate" class="com.honey.ftp.FtpTemplate"></bean>
-	<bean id="ftpUtils" class="com.honey.ftp.FtpUtils"></bean>
+	<bean id="ftpTemplate" class="com.honey.ftp.FtpTemplate">
+		<property name="ftpClientPool" ref="ftpClientPool"></property>
+	</bean>
+	<bean id="ftpUtils" class="com.honey.ftp.FtpUtils">
+		<property name="ftpTemplate" ref="ftpTemplate"></property>
+	</bean>
 </beans>

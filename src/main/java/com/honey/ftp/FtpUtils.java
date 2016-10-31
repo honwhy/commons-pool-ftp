@@ -36,32 +36,13 @@ public class FtpUtils {
 		}
 		try {
 			List<String> fileNames = ftpTemplate.listFiles(config,config.getOrdersCount());
-			if(CollectionUtils.isEmpty(fileNames)) {
-				logger.info("从FTP目录{}未获取到文件列表", toFtpInfo(config));
-				return ;
-			}
-			int pageSize = fileNames.size() / config.getThreadNum(); //每个线程的分页大小
-			if(pageSize == 0) {
-				pageSize = DEFAULT_PAGE_SIZE;
-			}
-			int page = 1;
-			int offset = 0;
+			BlockingQueue<String> fileQueue = new LinkedBlockingQueue<String>(fileNames); //生产者资料
 			for(int i = 0; i < config.getThreadNum(); i++) {
-				int end = page * pageSize + offset;
-				end = Math.min(end, fileNames.size()); 
-				String array[] = Arrays.copyOfRange(fileNames.toArray(new String[fileNames.size()]), offset, end);
-				logger.debug("{}",array.length);
 				try {
-					//BlockingQueue<String> fileQueue = new ArrayBlockingQueue<String>(array.length, false, Arrays.asList(array)); //生产者资料
-					workPool.execute(new GetFileConsumer(config, array, callback));
+					workPool.execute(new GetFileConsumer(config, fileQueue, callback));
 				} catch (Exception e) {
 					logger.error("提交线程出现异常",e);
 				}
-				offset = end; //下一个分页
-				if(end == fileNames.size()) {
-					break;
-				}
-				page++;
 			}
 		} catch (Exception e) {
 			logger.error("FTP操作出现异常"+toFtpInfo(config),e);
@@ -83,26 +64,36 @@ public class FtpUtils {
 	class GetFileConsumer implements Runnable {
 		private final Logger cslogger = LoggerFactory.getLogger(GetFileConsumer.class);
 		private final InterfaceConfig config;
-		private final String array[];
+		private final BlockingQueue<String> fileQueue;
 		private final FtpCallback<FtpFile,Boolean> callback;
-		public GetFileConsumer(InterfaceConfig config, String[] array,
+		public GetFileConsumer(InterfaceConfig config, BlockingQueue<String> fileQueue,
 				FtpCallback<FtpFile,Boolean> callback) {
 			this.config = config;
-			this.array = array;
+			this.fileQueue = fileQueue;
 			this.callback = callback;
 		}
 		@Override
 		public void run() {
-					for(String fileName : array) {						
-						try {
-							ftpTemplate.getFileCallback(config, fileName, callback);
-						} catch (Exception e) {
-							cslogger.error("下载文件{}{}出现异常{}", toFtpInfo(config), fileName,e);
-						}
+			while(true) {
+				String fileName = null;
+				try {
+					if (cslogger.isDebugEnabled()) {
+						cslogger.debug("准备下载并处理文件");
 					}
+					fileName = fileQueue.poll();
+					if(fileName == null) {
+						if (cslogger.isDebugEnabled()) {
+							cslogger.debug("文件队列为空下载处理文件线程结束");
+						}
+						break;
+					}
+					ftpTemplate.getFileCallback(config, fileName, callback);
+				} catch (Exception e) {
+					cslogger.error("下载或处理文件异常" + toFtpInfo(config) + "/" + fileName,e);
+				}
 			}
 			
-		
+		}
 	}
 	private String toFtpInfo(InterfaceConfig k) {
 		StringBuffer sb = new StringBuffer();
@@ -115,4 +106,11 @@ public class FtpUtils {
 			.append(k.getFtpDirectory());
 		return sb.toString();
 	}
+	public FtpTemplate getFtpTemplate() {
+		return ftpTemplate;
+	}
+	public void setFtpTemplate(FtpTemplate ftpTemplate) {
+		this.ftpTemplate = ftpTemplate;
+	}
+	
 }
