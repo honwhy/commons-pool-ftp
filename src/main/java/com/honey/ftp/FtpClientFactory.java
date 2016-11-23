@@ -33,6 +33,7 @@ public class FtpClientFactory implements KeyedPooledObjectFactory<FtpClientConfi
         cli.configure(ftpClientConfig);
         long connectStart = System.currentTimeMillis();
         cli.setConnectTimeout(3000); //timeout 3 seconds
+        cli.setDataTimeout(30 * 1000);
 		cli.connect(key.getHost(), key.getPort());
 		long connectUsed = System.currentTimeMillis() - connectStart;
 		LOGGER.info("connecting " + key.toString() + " used time :" + connectUsed + " ms.");
