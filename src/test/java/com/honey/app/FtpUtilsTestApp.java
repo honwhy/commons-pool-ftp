@@ -26,5 +26,18 @@ public class FtpUtilsTestApp {
 				return true; //delete file anyway
 			}
 		});
+		try {
+			Thread.sleep(10 * 1000);
+			ftpUtils.downloadDirectory(ConfigProvider.getDownloadConfig(), new FtpCallback<FtpFile, Boolean>() {
+				
+				@Override
+				public Boolean doCall(FtpFile k) throws Exception {
+					return true; //delete file anyway
+				}
+			});
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

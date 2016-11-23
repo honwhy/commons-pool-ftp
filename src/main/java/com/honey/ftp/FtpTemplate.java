@@ -38,7 +38,7 @@ public class FtpTemplate implements FtpOperations<InterfaceConfig> {
 		if (logger.isDebugEnabled()) {
 			logger.debug("正在获取" + toFtpInfo(k) + "文件列表");
 		}
-		final FTPClient client = getFtpClient(getFtpClientPool(), k);
+		FTPClient client = getFtpClient(getFtpClientPool(), k);
 		boolean ret = changeDirectory(client,k);
 		List<String> fileList = null;
 		try {
@@ -55,6 +55,8 @@ public class FtpTemplate implements FtpOperations<InterfaceConfig> {
 			return fileList;
 		} catch(Exception e) {
 			logger.error("获取" + toFtpInfo(k) + "文件列表异常", e);
+			getFtpClientPool().invalidateObject(buildFtpClientConfig(k), client);
+			client = null;
 			throw e;
 		} finally {
 			//return to object pool
@@ -69,7 +71,7 @@ public class FtpTemplate implements FtpOperations<InterfaceConfig> {
 		if (logger.isDebugEnabled()) {
 			logger.debug("正在下载" + toFtpInfo(k) + "/" + fileName + "文件");
 		}
-		final FTPClient client = getFtpClient(getFtpClientPool(), k);
+		FTPClient client = getFtpClient(getFtpClientPool(), k);
 		boolean ret = changeDirectory(client,k);
 		
 		try {
@@ -79,6 +81,8 @@ public class FtpTemplate implements FtpOperations<InterfaceConfig> {
 			return null;
 		} catch(Exception e) {
 			logger.error("下载" + toFtpInfo(k) + "/" + fileName + "文件异常",e);
+			getFtpClientPool().invalidateObject(buildFtpClientConfig(k), client);
+			client = null;
 			throw e;
 		} finally {
 			//return to object pool
@@ -122,6 +126,8 @@ public class FtpTemplate implements FtpOperations<InterfaceConfig> {
 			
 		} catch(Exception e) {
 			logger.error("下载" + toFtpInfo(k) + "/" + fileName + "文件异常",e);
+			getFtpClientPool().invalidateObject(buildFtpClientConfig(k), client);
+			client = null;
 			throw e;
 		} finally {
 			//return to object pool
@@ -156,7 +162,7 @@ public class FtpTemplate implements FtpOperations<InterfaceConfig> {
 		if (logger.isDebugEnabled()) {
 			logger.debug("正在上传文件到" + toFtpInfo(k) + "/" + fileName);
 		}
-		final FTPClient client = getFtpClient(getFtpClientPool(), k);
+		FTPClient client = getFtpClient(getFtpClientPool(), k);
 		boolean ret = changeDirectory(client,k); //切换目录失败无异常
 		BufferedInputStream inStream = null;
 		boolean success = false;
@@ -168,6 +174,8 @@ public class FtpTemplate implements FtpOperations<InterfaceConfig> {
 			return success;
 		} catch (Exception e) {
 			logger.error("正在上传文件到" + toFtpInfo(k) + "/" + fileName + "异常",e);
+			getFtpClientPool().invalidateObject(buildFtpClientConfig(k), client);
+			client = null;
 		} finally {
 			if (inStream != null) {
 				try {
@@ -189,7 +197,7 @@ public class FtpTemplate implements FtpOperations<InterfaceConfig> {
 		if (logger.isDebugEnabled()) {
 			logger.debug("正在删除" + toFtpInfo(k) + "/" + fileName + "文件");
 		}
-		final FTPClient client = getFtpClient(getFtpClientPool(), k);
+		FTPClient client = getFtpClient(getFtpClientPool(), k);
 		boolean ret = changeDirectory(client,k);
 		
 		try {
@@ -199,6 +207,8 @@ public class FtpTemplate implements FtpOperations<InterfaceConfig> {
 			return false;
 		} catch(Exception e) {
 			logger.error("删除" + toFtpInfo(k) + "/" + fileName + "文件异常", e);
+			getFtpClientPool().invalidateObject(buildFtpClientConfig(k), client);
+			client = null;
 			throw e;
 		} finally {
 			//return to object pool
