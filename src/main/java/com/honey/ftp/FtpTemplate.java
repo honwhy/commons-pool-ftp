@@ -42,7 +42,7 @@ public class FtpTemplate implements FtpOperations<InterfaceConfig> {
 		
 		List<String> fileList = null;
 		try {
-			getFtpClient(getFtpClientPool(), k);
+			client = getFtpClient(getFtpClientPool(), k);
 			boolean ret = changeDirectory(client,k);
 			if(ret) {
 				String[] fileNames = client.listNames();
@@ -102,12 +102,12 @@ public class FtpTemplate implements FtpOperations<InterfaceConfig> {
 		}
 		FTPClient client = null;
 		
-		if (logger.isDebugEnabled()) {
-			logger.debug(client.toString());
-		}
 		final int PER_MAX_ERROR = 3; //重试三次
 		try {
-			getFtpClient(getFtpClientPool(), k);
+			client = getFtpClient(getFtpClientPool(), k);
+			if (logger.isDebugEnabled()) {
+				logger.debug(client.toString());
+			}
 			String content = null;
 			boolean getFileErr = true;
 			for(int j = 1; j <= PER_MAX_ERROR; j++) {
