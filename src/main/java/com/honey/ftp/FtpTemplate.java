@@ -38,10 +38,12 @@ public class FtpTemplate implements FtpOperations<InterfaceConfig> {
 		if (logger.isDebugEnabled()) {
 			logger.debug("正在获取" + toFtpInfo(k) + "文件列表");
 		}
-		FTPClient client = getFtpClient(getFtpClientPool(), k);
-		boolean ret = changeDirectory(client,k);
+		FTPClient client = null;
+		
 		List<String> fileList = null;
 		try {
+			getFtpClient(getFtpClientPool(), k);
+			boolean ret = changeDirectory(client,k);
 			if(ret) {
 				String[] fileNames = client.listNames();
 				if(fileNames == null) {
@@ -55,8 +57,10 @@ public class FtpTemplate implements FtpOperations<InterfaceConfig> {
 			return fileList;
 		} catch(Exception e) {
 			logger.error("获取" + toFtpInfo(k) + "文件列表异常", e);
-			getFtpClientPool().invalidateObject(buildFtpClientConfig(k), client);
-			client = null;
+			if(client != null) {
+				getFtpClientPool().invalidateObject(buildFtpClientConfig(k), client);
+				client = null;
+			}
 			throw e;
 		} finally {
 			//return to object pool
@@ -96,12 +100,14 @@ public class FtpTemplate implements FtpOperations<InterfaceConfig> {
 		if (logger.isDebugEnabled()) {
 			logger.debug("正在下载" + toFtpInfo(k) + "/" + fileName + "文件");
 		}
-		FTPClient client = getFtpClient(getFtpClientPool(), k);
+		FTPClient client = null;
+		
 		if (logger.isDebugEnabled()) {
 			logger.debug(client.toString());
 		}
 		final int PER_MAX_ERROR = 3; //重试三次
 		try {
+			getFtpClient(getFtpClientPool(), k);
 			String content = null;
 			boolean getFileErr = true;
 			for(int j = 1; j <= PER_MAX_ERROR; j++) {
@@ -126,8 +132,10 @@ public class FtpTemplate implements FtpOperations<InterfaceConfig> {
 			
 		} catch(Exception e) {
 			logger.error("下载" + toFtpInfo(k) + "/" + fileName + "文件异常",e);
-			getFtpClientPool().invalidateObject(buildFtpClientConfig(k), client);
-			client = null;
+			if(client != null) {
+				getFtpClientPool().invalidateObject(buildFtpClientConfig(k), client);
+				client = null;				
+			}
 			throw e;
 		} finally {
 			//return to object pool
