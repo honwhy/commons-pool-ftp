@@ -41,7 +41,7 @@ public class FtpClientFactory implements KeyedPooledObjectFactory<FtpClientConfi
 		if(!FTPReply.isPositiveCompletion(reply)){
 			cli.disconnect();
             LOGGER.error("ftp connect fail," + key.toString());
-            return null;
+            throw new Exception("ftp connect failed");
 		}
 		// 设置传输协议  
         cli.enterLocalPassiveMode();
@@ -53,7 +53,7 @@ public class FtpClientFactory implements KeyedPooledObjectFactory<FtpClientConfi
 			LOGGER.debug("FTP login success : " + key.toString());
 		}else{
 			LOGGER.error("FTP login fail : " + key.toString());
-			return null;
+			throw new Exception("ftp login failed");
 		}
         reply = cli.getReplyCode();
         cli.setFileType(FTPClient.BINARY_FILE_TYPE);
