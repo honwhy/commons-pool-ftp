@@ -21,3 +21,8 @@ protected static InterfaceConfig getUploadConfig() {
 
 # TODO
 * Multithread unit test
+* 封装成组件形式
+
+# Note
+* 对象池维护是第一次FTP登录成功的连接，实际传输文件时还有data connection的连接，但并没有（办法）维护起来，所以看起来整个对象池只做了一半的工作
+× 还有一些发现
